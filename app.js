@@ -16,9 +16,17 @@ app.use("/api/meters", meterRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Flock Energy API is running successfully.",
+    documentation: "/api-docs"
+  });
+});
+
 app.use(errorHandler);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
@@ -29,8 +37,10 @@ async function startServer() {
     console.log("Login successful.");
 
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
+
+
   } catch (err) {
     console.error("Failed to login:", err.message);
     process.exit(1);
