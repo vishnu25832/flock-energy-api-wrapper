@@ -4,7 +4,21 @@ const geoService = require("../services/geo.service");
 
 async function getMeters(req, res, next) {
   try {
-    const page = Number(req.query.page) || 1;
+    const rawPage = req.query.page;
+
+    let page = 1;
+
+    if (rawPage !== undefined) {
+      page = Number(rawPage);
+
+      if (!Number.isInteger(page) || page < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "page must be a positive integer",
+        });
+      }
+    }
+
     const q = req.query.q || "";
 
     const data = await meterService.getMeters(page, q);
@@ -19,10 +33,8 @@ async function getMeter(req, res, next) {
   try {
     const { meterId } = req.params;
 
-    // First verify the meter exists
     const meter = await meterService.getMeterById(meterId);
 
-    // Only fetch these if the meter exists
     const energy = await energyService.getEnergy(meterId);
     const geo = await geoService.getGeo(meterId);
 
@@ -32,7 +44,6 @@ async function getMeter(req, res, next) {
       energy: energy.data,
     });
   } catch (err) {
-    // Convert Axios 404 into a clean API response
     if (err.response && err.response.status === 404) {
       return res.status(404).json({
         success: false,

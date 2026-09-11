@@ -1,10 +1,18 @@
 function errorHandler(err, req, res, next) {
-    console.error(err);
-  
-    res.status(err.status || 500).json({
-      success: false,
-      message: err.message || "Internal Server Error",
-    });
+  console.error(err);
+
+  const status = err.response?.status || err.status || 500;
+
+  let message = err.message || "Internal Server Error";
+
+  if (status === 404) {
+    message = "Meter not found";
   }
-  
-  module.exports = errorHandler;
+
+  res.status(status).json({
+    success: false,
+    message,
+  });
+}
+
+module.exports = errorHandler;

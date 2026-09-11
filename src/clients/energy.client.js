@@ -1,4 +1,4 @@
-const { client } = require("../utils/axiosClient");
+const client = require("../utils/axiosClient");
 
 async function getEnergy(meterId) {
   const response = await client.get(

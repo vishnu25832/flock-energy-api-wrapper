@@ -2,6 +2,7 @@ const express = require("express");
 
 const { login } = require("./src/clients/auth.client");
 const meterRoutes = require("./src/routes/meter.routes");
+const dtsRoutes = require("./src/routes/dts.routes");
 const errorHandler = require("./src/middleware/error.middleware");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./src/config/swagger");
@@ -13,6 +14,7 @@ app.set("json spaces", 2);
 app.use(express.json());
 
 app.use("/api/meters", meterRoutes);
+app.use("/api/transformers", dtsRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -20,7 +22,7 @@ app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "Flock Energy API is running successfully.",
-    documentation: "/api-docs"
+    documentation: "/api-docs",
   });
 });
 
@@ -39,8 +41,6 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-
-
   } catch (err) {
     console.error("Failed to login:", err.message);
     process.exit(1);

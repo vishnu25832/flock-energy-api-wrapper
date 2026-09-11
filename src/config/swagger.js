@@ -6,7 +6,8 @@ const options = {
     info: {
       title: "Flock Energy API",
       version: "1.0.0",
-      description: "Reverse engineered API wrapper for the Urja Portal",
+      description:
+        "Reverse engineered REST API wrapper for the Urja Operations Portal",
     },
     servers: [
       {

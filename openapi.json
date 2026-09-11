@@ -1,0 +1,112 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Flock Energy API",
+    "version": "1.0.0",
+    "description": "Reverse engineered REST API wrapper for the Urja Operations Portal"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/api/meters": {
+      "get": {
+        "summary": "Get all meters",
+        "responses": {
+          "200": {
+            "description": "Returns a paginated list of meters."
+          }
+        }
+      }
+    },
+    "/api/meters/{meterId}": {
+      "get": {
+        "summary": "Get a meter by ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meterId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns meter details, geo, and energy data."
+          },
+          "404": {
+            "description": "Meter not found."
+          }
+        }
+      }
+    },
+    "/api/meters/{meterId}/energy": {
+      "get": {
+        "summary": "Get meter energy readings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meterId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns energy readings."
+          }
+        }
+      }
+    },
+    "/api/meters/{meterId}/geo": {
+      "get": {
+        "summary": "Get meter geographic location",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meterId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns meter latitude and longitude."
+          }
+        }
+      }
+    },
+    "/api/transformers": {
+      "get": {
+        "summary": "Get distribution transformers",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a paginated list of distribution transformers."
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
