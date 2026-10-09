@@ -5,8 +5,8 @@ function errorHandler(err, req, res, next) {
 
   let message = err.message || "Internal Server Error";
 
-  if (status === 404) {
-    message = "Meter not found";
+  if (status === 404 && !err.message) {
+    message = "Resource not found";
   }
 
   res.status(status).json({

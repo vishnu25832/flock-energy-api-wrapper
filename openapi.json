@@ -1,112 +1,505 @@
+
 {
   "openapi": "3.0.0",
   "info": {
     "title": "Flock Energy API",
     "version": "1.0.0",
-    "description": "Reverse engineered REST API wrapper for the Urja Operations Portal"
+    "description": "REST API wrapper around the Urja Operations Portal for retrieving meter, energy, geographic, and distribution transformer data."
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Meters",
+      "description": "Meter discovery and meter-related operations."
+    },
+    {
+      "name": "Transformers",
+      "description": "Distribution transformer operations."
     }
   ],
   "paths": {
     "/api/meters": {
       "get": {
-        "summary": "Get all meters",
+        "tags": ["Meters"],
+        "summary": "Get meters",
+        "description": "Returns a paginated list of meters, optionally filtered by a search query.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number. Must be a positive integer.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Search query used to filter meters.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "J100000"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Returns a paginated list of meters."
+            "description": "Successfully retrieved the paginated meter list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/meters/{meterId}": {
       "get": {
+        "tags": ["Meters"],
         "summary": "Get a meter by ID",
+        "description": "Returns meter information together with geographic location and energy readings.",
         "parameters": [
           {
-            "in": "path",
             "name": "meterId",
+            "in": "path",
             "required": true,
+            "description": "Unique meter identifier.",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "J100000"
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns meter details, geo, and energy data."
+            "description": "Successfully retrieved the meter and its related data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterDetailResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Meter not found."
+            "description": "Meter not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/meters/{meterId}/energy": {
       "get": {
+        "tags": ["Meters"],
         "summary": "Get meter energy readings",
+        "description": "Returns energy readings for the specified meter.",
         "parameters": [
           {
-            "in": "path",
             "name": "meterId",
+            "in": "path",
             "required": true,
+            "description": "Unique meter identifier.",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "J100000"
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns energy readings."
+            "description": "Successfully retrieved energy readings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EnergyReading"
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Meter or energy resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/meters/{meterId}/geo": {
       "get": {
+        "tags": ["Meters"],
         "summary": "Get meter geographic location",
+        "description": "Returns the latitude and longitude associated with the specified meter.",
         "parameters": [
           {
-            "in": "path",
             "name": "meterId",
+            "in": "path",
             "required": true,
+            "description": "Unique meter identifier.",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "J100000"
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns meter latitude and longitude."
+            "description": "Successfully retrieved the geographic location.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/GeoLocation"
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "latitude": "26.938961002479868",
+                    "longitude": "75.83095696146852"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Meter or geographic resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/transformers": {
       "get": {
+        "tags": ["Transformers"],
         "summary": "Get distribution transformers",
+        "description": "Returns a paginated list of distribution transformers.",
         "parameters": [
           {
-            "in": "query",
             "name": "page",
+            "in": "query",
             "required": false,
+            "description": "Page number. Must be a positive integer.",
             "schema": {
               "type": "integer",
               "minimum": 1,
               "default": 1
-            }
+            },
+            "example": 1
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns a paginated list of distribution transformers."
+            "description": "Successfully retrieved the paginated transformer list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransformerListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       }
     }
   },
-  "components": {},
-  "tags": []
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["success", "message"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Meter not found"
+          }
+        }
+      },
+      "Meter": {
+        "type": "object",
+        "required": [
+          "meterId",
+          "serialNo",
+          "make",
+          "phaseType",
+          "installStatus",
+          "dtCode"
+        ],
+        "properties": {
+          "meterId": {
+            "type": "string",
+            "example": "J100000"
+          },
+          "serialNo": {
+            "type": "string",
+            "example": "SE33962"
+          },
+          "make": {
+            "type": "string",
+            "example": "HPL"
+          },
+          "phaseType": {
+            "type": "string",
+            "example": "single"
+          },
+          "installStatus": {
+            "type": "string",
+            "example": "Decommissioned"
+          },
+          "dtCode": {
+            "type": "string",
+            "example": "DT-001"
+          }
+        }
+      },
+      "MeterListResponse": {
+        "type": "object",
+        "required": ["data", "total", "page", "pageSize"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Meter"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "example": 403
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      },
+      "MeterDetailResponse": {
+        "type": "object",
+        "required": ["meter", "geo", "energy"],
+        "properties": {
+          "meter": {
+            "$ref": "#/components/schemas/Meter"
+          },
+          "geo": {
+            "$ref": "#/components/schemas/GeoLocation"
+          },
+          "energy": {
+            "description": "Energy data returned by the portal.",
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EnergyReading"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": true
+              }
+            ]
+          }
+        }
+      },
+      "GeoLocation": {
+        "type": "object",
+        "required": ["latitude", "longitude"],
+        "properties": {
+          "latitude": {
+            "type": "string",
+            "example": "26.938961002479868"
+          },
+          "longitude": {
+            "type": "string",
+            "example": "75.83095696146852"
+          }
+        }
+      },
+      "EnergyReading": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "example": "27/06/2026 12:00"
+          },
+          "kwh": {
+            "type": "string",
+            "example": "123.45"
+          },
+          "kvah": {
+            "type": "string",
+            "example": "130.12"
+          },
+          "voltR": {
+            "type": "string",
+            "example": "231.50"
+          }
+        },
+        "additionalProperties": true
+      },
+      "Transformer": {
+        "type": "object",
+        "required": ["code", "name", "feederCode", "capacityKva"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "DT-001"
+          },
+          "name": {
+            "type": "string",
+            "example": "Malviya Nagar DT 1"
+          },
+          "feederCode": {
+            "type": "string",
+            "example": "F-001"
+          },
+          "capacityKva": {
+            "type": "number",
+            "example": 100
+          }
+        }
+      },
+      "TransformerListResponse": {
+        "type": "object",
+        "required": ["data", "total", "page", "pageSize"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transformer"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "example": 40
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      }
+    }
+  }
 }
