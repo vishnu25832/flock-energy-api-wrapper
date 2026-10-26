@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const router = express.Router();
@@ -12,7 +13,7 @@ const geoController = require("../controllers/geo.controller");
  *   get:
  *     tags:
  *       - Meters
- *     summary: Get meters
+ *     summary: Get all meters
  *     description: Returns a paginated list of meters, optionally filtered by a search query.
  *     parameters:
  *       - in: query
@@ -26,9 +27,10 @@ const geoController = require("../controllers/geo.controller");
  *       - in: query
  *         name: q
  *         required: false
- *         description: Search query used to filter meters.
+ *         description: Optional meter search query.
  *         schema:
  *           type: string
+ *           default: ""
  *         example: J100000
  *     responses:
  *       200:
@@ -39,6 +41,8 @@ const geoController = require("../controllers/geo.controller");
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
  */
 router.get("/", meterController.getMeters);
 
@@ -67,6 +71,8 @@ router.get("/", meterController.getMeters);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
  */
 router.get("/:meterId", meterController.getMeter);
 
@@ -95,6 +101,8 @@ router.get("/:meterId", meterController.getMeter);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
  */
 router.get("/:meterId/energy", energyController.getEnergy);
 
@@ -130,6 +138,8 @@ router.get("/:meterId/energy", energyController.getEnergy);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error.
  */
 router.get("/:meterId/geo", geoController.getGeo);
 

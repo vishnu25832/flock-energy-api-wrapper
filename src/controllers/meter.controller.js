@@ -1,3 +1,4 @@
+
 const meterService = require("../services/meter.service");
 const energyService = require("../services/energy.service");
 const geoService = require("../services/geo.service");
@@ -5,7 +6,6 @@ const geoService = require("../services/geo.service");
 async function getMeters(req, res, next) {
   try {
     const rawPage = req.query.page;
-
     let page = 1;
 
     if (rawPage !== undefined) {
@@ -20,7 +20,6 @@ async function getMeters(req, res, next) {
     }
 
     const q = req.query.q || "";
-
     const data = await meterService.getMeters(page, q);
 
     res.json(data);
@@ -34,7 +33,6 @@ async function getMeter(req, res, next) {
     const { meterId } = req.params;
 
     const meter = await meterService.getMeterById(meterId);
-
     const energy = await energyService.getEnergy(meterId);
     const geo = await geoService.getGeo(meterId);
 
@@ -44,7 +42,9 @@ async function getMeter(req, res, next) {
       energy: energy.data,
     });
   } catch (err) {
-    if (err.response && err.response.status === 404) {
+    const status = err.response?.status || err.status;
+
+    if (status === 404) {
       return res.status(404).json({
         success: false,
         message: "Meter not found",
